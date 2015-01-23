@@ -3,7 +3,6 @@
 # Author: Jeffrey Bergamini
 import sys
 import re
-import sqlite3
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 
