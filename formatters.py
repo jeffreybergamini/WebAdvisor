@@ -68,7 +68,7 @@ def gen_vlab ( rosters ) :
         m = re.search('^(cs|cis)(\d+).*$', class_name)
         unixclass = m.group(1) + m.group(2)
         ou = unixclass.upper()
-        filename = class_name + '-vlab.cmd'
+        filename = class_name + '-vlab.bat'
         print ('Writing: ' + filename)
         f = open(filename, 'w')
         for q in rosters[cl]:
