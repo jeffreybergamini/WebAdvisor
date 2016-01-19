@@ -55,11 +55,11 @@ def gen_unix ( rosters ) :
         f = open(filename, 'w')
         for q in rosters[cl]:
             login = gen_login(class_name, q)
-            f.write('useradd -g ' + unixclass +\
+            f.write('useradd -g users -G users,' + unixclass +\
                      ' -d /home/' + unixclass + '/' + login['login'] +\
                      ' -m -p \'' + crypt.crypt(login['password'], '$6$af9$') + '\'' +\
-                     ' -c "' + login['given'] + ' ' + login['family'] + '"' +\
-                     ' -g users ' + login['login'] + '\n')
+                     ' -c "' + login['given'] + ' ' + login['family'] + '" ' +\
+                     login['login'] + '\n')
         f.close()
 
 def gen_vlab ( rosters ) :
@@ -80,8 +80,8 @@ def gen_vlab ( rosters ) :
                     ' -ln ' + login['family'] +\
                     ' -pwd ' + login['password'] +\
                     ' -desc "' + unixclass + ' student"' +\
-                    ' -memberof "CN='+unixclass+',CN=users,DC=cislab,DC=net"' +
-                    ' "CN=students,CN=users,DC=cislab,DC=net"' +
+                    ' -memberof "CN='+unixclass+',CN=users,DC=cislab,DC=net"' +\
+                    ' "CN=students,CN=users,DC=cislab,DC=net"' +\
                     ' -canchpwd yes -pwdneverexpires yes -acctexpires never -disabled no\n')
         f.close()
 
@@ -97,3 +97,31 @@ def gen_sql ( rosters ) :
                     + login['login'] + '\'@\'%.cis.cabrillo.edu\' IDENTIFIED BY \''
                     + login['password'] + '\'')
 
+def gen_netacad ( rosters ) :
+    for cl in rosters :
+        class_name = cl[0:-3]
+        filename = class_name + '-netacad.csv'
+        print ('Writing: ' + filename)
+        f = open(filename, 'w')
+        f.write('First Name, Last Name, Email Address, Institution Student ID\n')
+        for q in rosters[cl]:
+            login = gen_login(class_name, q)
+            f.write(login['given'] + ',' + login['family'] + ',' + q['email'] + ',' + q['id'] + '\n')
+        f.close()
+
+def gen_csv ( rosters ) : 
+    for cl in rosters :
+        class_name = cl[0:-3]
+        filename = class_name + '-full.csv'
+        print ('Writing: ' + filename)
+        f = open(filename, 'w')
+        f.write('Username, First Name, Last Name, Student ID, Email, Phone Number\n')
+        for q in rosters[cl]:
+            login = gen_login(class_name, q)
+            f.write(q['username'] + ',' +\
+                    login['given'] + ',' +\
+                    login['family'] + ',' +\
+                    q['id'] + ',' +\
+                    q['email'] + ',' +\
+                    q['phone'] + '\n')
+        f.close()
