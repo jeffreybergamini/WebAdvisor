@@ -55,11 +55,11 @@ def gen_unix ( rosters ) :
         f = open(filename, 'w')
         for q in rosters[cl]:
             login = gen_login(class_name, q)
-            f.write('useradd -g ' + unixclass +\
+            f.write('useradd -g users -G users,' + unixclass +\
                      ' -d /home/' + unixclass + '/' + login['login'] +\
                      ' -m -p \'' + crypt.crypt(login['password'], '$6$af9$') + '\'' +\
-                     ' -c "' + login['given'] + ' ' + login['family'] + '"' +\
-                     ' -g users ' + login['login'] + '\n')
+                     ' -c "' + login['given'] + ' ' + login['family'] + '" ' +\
+                     login['login'] + '\n')
         f.close()
 
 def gen_vlab ( rosters ) :
