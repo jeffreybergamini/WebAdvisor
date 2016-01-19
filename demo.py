@@ -10,7 +10,7 @@ print "Enter your WebAdvisor username:"
 username = sys.stdin.readline().strip()
 print "Enter your WebAdvisor password:"
 pw = getpass.getpass().strip()
-wave = WebAdvisor(username, pw, 'f15')
+wave = WebAdvisor(username, pw, 's16')
 rosters = wave.get_rosters()
 
 # print rosters

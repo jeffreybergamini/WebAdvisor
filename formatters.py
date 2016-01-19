@@ -85,3 +85,15 @@ def gen_vlab ( rosters ) :
                     ' -canchpwd yes -pwdneverexpires yes -acctexpires never -disabled no\n')
         f.close()
 
+def gen_sql ( rosters ) :
+    for cl in rosters :
+        class_name = cl[0:-3]
+        filename = class_name + '-db.sql'
+        print ('Writing: ' + filename)
+        f = open(filename, 'w')
+        for q in rosters[cl]:
+            login = gen_login(class_name, q)
+            f.write('GRANT ALL, MONTIORADMIN ON `' + login['login'] + '\\_%` TO \'' 
+                    + login['login'] + '\'@\'%.cis.cabrillo.edu\' IDENTIFIED BY \''
+                    + login['password'] + '\'')
+
