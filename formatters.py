@@ -55,11 +55,11 @@ def gen_unix ( rosters ) :
         f = open(filename, 'w')
         for q in rosters[cl]:
             login = gen_login(class_name, q)
-            f.write('useradd -g ' + unixclass +\
+            f.write('useradd -g users -G users,' + unixclass +\
                      ' -d /home/' + unixclass + '/' + login['login'] +\
                      ' -m -p \'' + crypt.crypt(login['password'], '$6$af9$') + '\'' +\
-                     ' -c "' + login['given'] + ' ' + login['family'] + '"' +\
-                     ' -g users ' + login['login'] + '\n')
+                     ' -c "' + login['given'] + ' ' + login['family'] + '" ' +\
+                     login['login'] + '\n')
         f.close()
 
 def gen_vlab ( rosters ) :
@@ -84,6 +84,24 @@ def gen_vlab ( rosters ) :
                     ' "CN=students,CN=users,DC=cislab,DC=net"' +\
                     ' -canchpwd yes -pwdneverexpires yes -acctexpires never -disabled no\n')
         f.close()
+
+def gen_sql ( rosters ) :
+    for cl in rosters :
+        class_name = cl[0:-3]
+        filename = class_name + '-db.sql'
+        print ('Writing: ' + filename)
+        f = open(filename, 'w')
+        # Fixes a bug in some MySQL versions...
+        f.write('FLUSH PRIVILEGES;\n'); 
+        for q in rosters[cl]:
+            login = gen_login(class_name, q)
+            # f.write('DROP USER IF EXISTS \'' + login['login'] + '\';\n');
+            f.write('CREATE USER \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\' IDENTIFIED BY \'' + login['password'] + '\';\n'); 
+            f.write('GRANT ALL ON `' + login['login'] + '\\_%`.* to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\' WITH GRANT OPTION;\n'); 
+            f.write('GRANT SELECT ON `public\\_%`.* to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\';\n'); 
+            f.write('GRANT SELECT ON `mysql`.`user` to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\';\n'); 
+            # Fixes a bug in some MySQL versions...
+            f.write('FLUSH PRIVILEGES;\n'); 
 
 def gen_netacad ( rosters ) :
     for cl in rosters :
