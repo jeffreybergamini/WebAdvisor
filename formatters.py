@@ -91,11 +91,17 @@ def gen_sql ( rosters ) :
         filename = class_name + '-db.sql'
         print ('Writing: ' + filename)
         f = open(filename, 'w')
+        # Fixes a bug in some MySQL versions...
+        f.write('FLUSH PRIVILEGES;\n'); 
         for q in rosters[cl]:
             login = gen_login(class_name, q)
-            f.write('GRANT ALL, MONTIORADMIN ON `' + login['login'] + '\\_%` TO \'' 
-                    + login['login'] + '\'@\'%.cis.cabrillo.edu\' IDENTIFIED BY \''
-                    + login['password'] + '\'')
+            # f.write('DROP USER IF EXISTS \'' + login['login'] + '\';\n');
+            f.write('CREATE USER \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\' IDENTIFIED BY \'' + login['password'] + '\';\n'); 
+            f.write('GRANT ALL ON `' + login['login'] + '\\_%`.* to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\' WITH GRANT OPTION;\n'); 
+            f.write('GRANT SELECT ON `public\\_%`.* to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\';\n'); 
+            f.write('GRANT SELECT ON `mysql`.`user` to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\';\n'); 
+            # Fixes a bug in some MySQL versions...
+            f.write('FLUSH PRIVILEGES;\n'); 
 
 def gen_netacad ( rosters ) :
     for cl in rosters :
