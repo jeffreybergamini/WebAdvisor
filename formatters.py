@@ -100,6 +100,7 @@ def gen_sql ( rosters ) :
             f.write('GRANT ALL ON `' + login['login'] + '\\_%`.* to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\' WITH GRANT OPTION;\n'); 
             f.write('GRANT SELECT ON `public\\_%`.* to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\';\n'); 
             f.write('GRANT SELECT ON `mysql`.`user` to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\';\n'); 
+            f.write('GRANT FILE ON *.* to \'' + login['login'] + '\'@\'%.cis.cabrillo.edu\';\n'); 
             # Fixes a bug in some MySQL versions...
             f.write('FLUSH PRIVILEGES;\n'); 
 
