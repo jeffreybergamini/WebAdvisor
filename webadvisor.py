@@ -28,6 +28,7 @@ class WebAdvisor:
        - phone
     """
     # Log in
+    print ("Logging in.")
     self.browser.get('https://wave.cabrillo.edu')
     self.browser.find_element_by_link_text('Log In').click()
     WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.ID, "USER_NAME")))
@@ -41,6 +42,7 @@ class WebAdvisor:
       self.browser.execute_script('document.getElementById("CURR_PWD").value = "%s"' % self.passphrase)
     self.browser.find_element_by_id('USER_NAME').submit()
     # Faculty menu
+    print ("Searching for the Faculty menu. (This will fail if the login failed.)")
     WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Faculty")))
     self.browser.find_element_by_link_text('Faculty').click()
     ret = dict()
@@ -75,6 +77,7 @@ class WebAdvisor:
       # My pattern for class_id is DeptNumTerm
       class_id = class_tokens[0] + class_tokens[1] + self.term
       section_id = class_tokens[2].split()[0]
+      print ("Scanning: " + class_tokens[0] + class_tokens[1] + '-' + section_id)
       if class_id not in ret:
         ret[class_id] = []
       # All students
