@@ -3,6 +3,7 @@
 # Author: Jeffrey Bergamini
 import sys
 import re
+import time
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
@@ -28,7 +29,6 @@ class WebAdvisor:
        - phone
     """
     # Log in
-    print ("Logging in.")
     self.browser.get('https://wave.cabrillo.edu')
     self.browser.find_element_by_link_text('Log In').click()
     WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.ID, "USER_NAME")))
@@ -42,7 +42,6 @@ class WebAdvisor:
       self.browser.execute_script('document.getElementById("CURR_PWD").value = "%s"' % self.passphrase)
     self.browser.find_element_by_id('USER_NAME').submit()
     # Faculty menu
-    print ("Searching for the Faculty menu. (This will fail if the login failed.)")
     WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Faculty")))
     self.browser.find_element_by_link_text('Faculty').click()
     ret = dict()
@@ -63,6 +62,24 @@ class WebAdvisor:
         }
         ''' % full_term_name)
       self.browser.find_element_by_id('VAR1').submit()
+
+      # Take a detour to get section ID (ugh...)
+      # Reason: Section ID no longer included in section listing...
+      try:
+        WebDriverWait(self.browser, 10).until(EC.presence_of_element_located((By.ID, 'LIST_VAR2_%d' % class_num)))
+        self.browser.find_element_by_id('LIST_VAR2_%d' % class_num).click()
+        time.sleep(1)
+        self.browser.switch_to_window(self.browser.window_handles[-1])
+        # And not every detail page contains a section ID (double ugh...)
+        try:
+          section_id = re.compile(r'Section \d-\((\d+)\)').search(self.browser.page_source).group(1)
+        except:
+          section_id = 0
+        self.browser.close()
+        self.browser.switch_to_window(self.browser.window_handles[-1])
+      except:
+        break
+
       # Select the next section
       try:
         self.browser.find_element_by_id('LIST_VAR1_%d' % class_num).click()
@@ -71,13 +88,13 @@ class WebAdvisor:
       self.browser.find_element_by_id('LIST_VAR1_%d' % class_num).submit()
       class_name = self.browser.find_element_by_id('LIST_VAR2_1')
       class_tokens = [x.strip().lower() for x in class_name.text.split('-')]
+      if section_id == 0:
+        section_id = class_tokens[2].split()[0] # Section ID used to be here, but now it's just a 1-based integer...
       # Take care of CS/MATH 23 crosslisting
       if class_tokens[0] == 'math':
         class_tokens[0] = 'cs'
       # My pattern for class_id is DeptNumTerm
       class_id = class_tokens[0] + class_tokens[1] + self.term
-      section_id = class_tokens[2].split()[0]
-      print ("Scanning: " + class_tokens[0] + class_tokens[1] + '-' + section_id)
       if class_id not in ret:
         ret[class_id] = []
       # All students
